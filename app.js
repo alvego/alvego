@@ -4,14 +4,12 @@ var http = require('http'),
     fs = require('fs'),
     jade = require('jade'),
     less = require('less'),
-    os = require('os'),
     mime = require('./mime');
 
 var serverRoot = path.join(__dirname, 'www');
 var hostPort = process.env.VMC_APP_PORT || 81;
-var hostName =  os.hostname();
-var host = hostName + (hostPort === 80 ? '' : ':'+hostPort);
-
+var hostName =  process.env.VMC_APP_PORT ? 'alvego.pp.ua' : 'localhost:81';
+var existsSync = fs.existsSync || path.existsSync;
 //var requestLog = [];
 /******************************/
 var dynamics = [
@@ -51,7 +49,7 @@ function fsFilter(file, data)
         var t = dynamics[i];
         if (path.extname(file).substr(1) === t.fsExt) {
             data = ''+data;
-            data = data.replace(/_host_/g, host);
+            data = data.replace(/_host_/g, hostName);
             data = data.replace(/_root_/g, path.relative(file, serverRoot).replace('..', ''));
             return data;
         }
@@ -59,8 +57,50 @@ function fsFilter(file, data)
     return data;
 }
 
+function scanPages(pages, rPath){
+    var fsPath = path.join(serverRoot, rPath);
+    if (isDir(fsPath)) {
+        var file = path.join(fsPath, 'index.jade');
+        if (existsSync(file)) {
+           pages[rFolder(rPath)] = getJadeMeta(file, fs.readFileSync(file));
+        }
+        fs.readdirSync(fsPath).forEach(function(file){
+            if (isDir(path.join(fsPath, file))) {
+                scanPages(pages, path.join(rPath, path.basename(file)));
+            }
+        });
+    }
+}
+
+var pages = {}
+scanPages(pages, '/');
+
+function rFolder(p){
+   return p.replace(/\\/g, '/').replace(/([^\/]{1,})$/g, '$1/');
+}
+
+function getPages(rPath)
+{
+    rPath = rFolder(rPath);
+    var result = [];
+    Object.keys(pages).forEach(function(p){
+         if ((new RegExp('^'+rPath+'[^/\]{1,}/\$')).test(p)) {
+             result.push({
+                 path:'http://'+hostName+ p,
+                 name:path.basename(p),
+                 page: pages[p],
+                 pages:getPages(p)
+             });
+         }
+    });
+
+    return result;
+}
+
+var nav = getPages(path.dirname('/'));
+
 function isDir(fsPath){
-    return fs.existsSync(fsPath) && fs.statSync(fsPath).isDirectory() ? true : false;
+    return existsSync(fsPath) && fs.statSync(fsPath).isDirectory() ? true : false;
 }
 
 function modifyUrlPath(sourceUrl, pathModifer){
@@ -102,8 +142,14 @@ function folderRedirectAction(req, res, next){
 }
 
 function folderIndexAction(req, res, next){
-    if (/\/$/g.test(url.parse(req.url).pathname)){
+    var rPath = url.parse(req.url).pathname;
+    if (/\/$/g.test(rPath)){
         req.url = modifyUrlPath(req.url, function(p){return path.join(p, 'index.html')});
+    } else {
+        var fsPath = path.join(serverRoot,rPath);
+        if (!existsSync(fsPath) && existsSync(fsPath + '.jade')) {
+            req.url = modifyUrlPath(req.url, function(p){return p + '.html'});
+        }
     }
     next();
 }
@@ -113,7 +159,37 @@ function setHttpHeadersAction(req, res, next){
     next();
 }
 
+function getJadeMeta(file, data) {
+    var result = {};
+    data = ''+data;
+    var re = /^\/\/-\s*(\w.{1,}):\s*(.*)\s*$/gm;
+    var m;
+    while(m = re.exec(data)) {
+       result[m[1]] = m[2];
+    }
 
+    if ('undefined' === typeof result.title) {
+        result.title =  path.basename(file, '.jade');
+        if (result.title === 'index') {
+            var dir = path.dirname(file);
+            if (dir !== serverRoot) {
+                result.title = path.basename(dir);
+            }
+        }
+    }
+
+    if ('undefined' === typeof result.date) {
+        var pad = function (val, len) {
+            val = String(val);
+            len = len || 2;
+            while (val.length < len) val = "0" + val;
+            return val;
+        };
+        var d = fs.statSync(file).mtime;
+        result.date = [pad(d.getDate()), pad(d.getMonth()+1), d.getFullYear()].join('.');
+    }
+    return result;
+}
 
 function jadeParser(file, data, ctx, back) {
     var err = null,
@@ -127,10 +203,17 @@ function jadeParser(file, data, ctx, back) {
                 filename: file
             }
         );
-        result = fn(ctx || {});
+
+        ctx.page = getJadeMeta(file, data);
+        ctx.path = rFolder(path.dirname(ctx.url));
+        ctx.host = 'http://'+hostName;
+        ctx.url = ctx.host+ctx.path;
+        ctx.pages = getPages(ctx.path);
+        ctx.nav = nav;
+        result = fn(ctx);
     } catch(e){
         err = e;
-        result = e.message;
+        result = '<pre>' + e.message + '</pre>';
     }
     back(err, result);
 }
@@ -147,7 +230,7 @@ function lessParser(file, data, ctx, back) {
     new(less.Parser)({
         paths: [path.dirname(file)],
         filename:path.basename(file),
-        contents: ctx || {},
+        contents: ctx,
         optimization: 0
     }).parse(''+data, function (err, tree) {
         if (err) {
@@ -165,8 +248,10 @@ function lessParser(file, data, ctx, back) {
 
 }
 
+var dynamicCache = {};
 function sendDynamicAction(req, res, next){
-    var file = path.join(serverRoot, url.parse(req.url).pathname);
+    var rPath = url.parse(req.url).pathname;
+    var file = path.join(serverRoot, rPath);
     var ext = path.extname(file).substr(1);
     var type = null;
     for(var i = 0, l = dynamics.length; i<l; i++) {
@@ -180,13 +265,22 @@ function sendDynamicAction(req, res, next){
             file = file.replace(new RegExp(ext + '$'), type.fsExt);
             ext = type.fsExt;
         }
-        if (fs.existsSync(file)) {
-            type.parser(file, fs.readFileSync(file), null, function(err, data){
-                res.writeHead(200, {
-                    "Content-Type":mime(file.replace(new RegExp(ext + '$'), type.resExt))
-                });
-                res.end(data);
+
+        var send =  function(data){
+            res.writeHead(200, {
+                "Content-Type":mime(file.replace(new RegExp(ext + '$'), type.resExt))
             });
+            res.end(data);
+        };
+
+        if (!process.env.VMC_APP_PORT ||  'undefined' === typeof dynamicCache[file] && existsSync(file)) {
+            var ctx = {url: rPath};
+            type.parser(file, fs.readFileSync(file), ctx, function(err, data){
+                dynamicCache[file] = data;
+                send(data);
+            });
+        } else {
+            send(dynamicCache[file]);
         }
     } else {
         next();
@@ -196,7 +290,7 @@ function sendDynamicAction(req, res, next){
 
 function sendStaticAction(req, res, next){
     var file = path.join(serverRoot, url.parse(req.url).pathname);
-    if (fs.existsSync(file)){
+    if (existsSync(file)){
         res.writeHead(200, {'Content-Type':mime(file) });
         var stream = fs.createReadStream(file, { bufferSize: 64 * 1024 });
         stream.on('error', function(err){
