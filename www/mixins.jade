@@ -1,0 +1,28 @@
+mixin nav(pages)
+    .navbar
+        .navbar-inner
+            ul.nav.sf-menu
+                if (new RegExp('^'+host+'[\/]{0,1}$').test(url))
+                    li.active
+                        a(href=host)
+                            i.icon-home
+                else
+                    li
+                        a(href=host)
+                            i.icon-home
+                for item in pages
+                    li.divider-vertical
+                    +nav_link(item)
+
+mixin pages()
+    ul.nav.nav-pills.pull-right
+        for item in pages
+           +nav_link(item)
+
+mixin nav_link(item)
+    if (new RegExp('^'+item.url).test(url))
+        li.active
+            a(href=item.url)= item.page.title
+    else
+        li
+            a(href=item.url)= item.page.title

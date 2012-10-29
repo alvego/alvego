@@ -49,6 +49,7 @@ function fsFilter(file, data)
         var t = dynamics[i];
         if (path.extname(file).substr(1) === t.fsExt) {
             data = ''+data;
+            data = data.replace(/^(\s*)\|\s/gm, "$1|#{' '}");
             data = data.replace(/_host_/g, hostName);
             data = data.replace(/_root_/g, path.relative(file, serverRoot).replace('..', ''));
             return data;
@@ -86,7 +87,8 @@ function getPages(rPath)
     Object.keys(pages).forEach(function(p){
          if ((new RegExp('^'+rPath+'[^/\]{1,}/\$')).test(p)) {
              result.push({
-                 path:'http://'+hostName+ p,
+                 path:p,
+                 url:'http://'+hostName + p,
                  name:path.basename(p),
                  page: pages[p],
                  pages:getPages(p)
@@ -130,10 +132,50 @@ function modifyUrlPath(sourceUrl, pathModifer){
     }
 }*/
 
+var faviconData = null;
+function faviconAction(req, res, next){
+    var rPath = url.parse(req.url).pathname;
+    var fPath = '/favicon.ico';
+    var fsPath = path.join(serverRoot, fPath);
+    var send = function(data) {
+        res.writeHead(200, {"Content-Type":mime(fPath)});
+        res.end(data);
+    }
+    if (rPath === fPath) {
+        if (faviconData === null && existsSync(fsPath)){
+            faviconData = fs.readFileSync(fsPath);
+        }
+        if (faviconData !== null) {
+            send(faviconData)
+            return
+        }
+    }
+    next();
+}
+
+var libsCache = {};
+function libsAction(req, res, next){
+    var rPath = url.parse(req.url).pathname;
+    if (/^\/libs\//g.test(rPath)){
+        var fsPath = path.join(__dirname, rPath);
+        if ('undefined' === typeof libsCache[fsPath] && existsSync(fsPath) && !isDir(fsPath)){
+            libsCache[fsPath] = fs.readFileSync(fsPath);
+        }
+        if ('undefined' !== typeof libsCache[fsPath]) {
+            res.writeHead(200, {"Content-Type":mime(fsPath)});
+            res.end(libsCache[fsPath]);
+            return;
+        }
+        notFoundAction(req, res, next)
+        return;
+    }
+    next();
+}
 
 function folderRedirectAction(req, res, next){
     var rPath = url.parse(req.url).pathname;
-    if (!/\/$/g.test(rPath) && isDir(path.join(serverRoot, rPath))){
+    var fsPath = path.join(serverRoot, rPath);
+    if (!/\/$/g.test(rPath) && existsSync(fsPath) &&  isDir(fsPath)){
         res.writeHead(302, {'Location': modifyUrlPath(req.url, function(p){return p + '/'})});
         res.end();
     } else {
@@ -162,7 +204,7 @@ function setHttpHeadersAction(req, res, next){
 function getJadeMeta(file, data) {
     var result = {};
     data = ''+data;
-    var re = /^\/\/-\s*(\w.{1,}):\s*(.*)\s*$/gm;
+    var re = /^\/\/-\s*(\w{1,}):\s*(.*)\s*$/gm;
     var m;
     while(m = re.exec(data)) {
        result[m[1]] = m[2];
@@ -268,19 +310,26 @@ function sendDynamicAction(req, res, next){
 
         var send =  function(data){
             res.writeHead(200, {
-                "Content-Type":mime(file.replace(new RegExp(ext + '$'), type.resExt))
+                "Content-Type":mime(file.replace(new RegExp(ext + '$'), type.resExt))+'; charset=utf-8'
             });
             res.end(data);
         };
 
-        if (!process.env.VMC_APP_PORT ||  'undefined' === typeof dynamicCache[file] && existsSync(file)) {
+
+        if (process.env.VMC_APP_PORT && 'undefined' !== typeof dynamicCache[file]) {
+            send(dynamicCache[file]);
+            console.log('from cache:', file);
+            return;
+        }
+
+        if (existsSync(file)) {
             var ctx = {url: rPath};
             type.parser(file, fs.readFileSync(file), ctx, function(err, data){
                 dynamicCache[file] = data;
                 send(data);
             });
         } else {
-            send(dynamicCache[file]);
+           next();
         }
     } else {
         next();
@@ -311,6 +360,8 @@ function notFoundAction(req, res, next){
 
 var actions = [
     //requestLogAction,
+    faviconAction,
+    libsAction,
     folderRedirectAction,
     folderIndexAction,
     setHttpHeadersAction,
@@ -322,7 +373,7 @@ var actions = [
 // Create a new HTTP server
 http.createServer(function (req, res) {
     var i = 0;
-    var next = function(err) {
+    function next(err) {
         if (err) {
             console.log(err);
             if (!res.finshed) {
@@ -335,12 +386,10 @@ http.createServer(function (req, res) {
         }
 
         if (!res.finished && i < actions.length) {
-            apply(actions[i++]);
+            var action = actions[i++];
+            //console.log(action.name, req.url);
+            action(req, res, next);
         }
-    };
-    var apply = function(action) {
-        //console.log(action.name, req.url);
-        action(req, res, next);
     };
     next();
 }).listen(hostPort);

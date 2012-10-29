@@ -1,0 +1,29 @@
+include mixins
+!!! 5
+html
+    head
+        meta(charset="utf-8")
+        meta(name="viewport", content="width=device-width, initial-scale=1.0")
+        link(href="http://_host_/libs/bootstrap/css/bootstrap.min.css", rel="stylesheet")
+        link(href="http://_host_/style.css", rel="stylesheet")
+        link(href="http://_host_/libs/bootstrap/css/bootstrap-responsive.min.css", rel="stylesheet")
+        link(rel="shortcut icon", href="http://_host_/favicon.ico")
+        title= page.title
+    body
+        .container
+            header.clearfix.muted
+                h3.pull-left=page.title 
+                h3.pull-right Alvego's Personal Playground
+            +nav(nav)
+            article.clearfix
+                block content
+                em.pull-right=page.date
+            hr.clearfix
+            footer.clearfix
+                +pages
+                p &copy; Alvego #{new Date().getFullYear()}
+
+        script(src="http://_host_/libs/jquery.min.js")
+        script(src="http://_host_/libs/html5.js")
+        script(src="http://_host_/libs/bootstrap/js/bootstrap.min.js")
+        script(src="http://_host_/script.js")
