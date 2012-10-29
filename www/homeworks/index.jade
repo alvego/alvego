@@ -1,0 +1,38 @@
+//- title: Задания
+extends _root_/layout
+
+block content
+    - var i = 1
+    table.table.table-striped
+        thead
+            tr
+                th #
+                th Description
+                th Etalon
+                th Status
+        tbody
+            tr
+                td D#{i++}
+                td Сделать 2 дива, с заливкой разных цветов, которые бы занимали все доступное место на странице, деля ее на 2 вертикальные колонки.
+                td: a(href="http://jsfiddle.net/a3j99/1/") http://jsfiddle.net/a3j99/1/
+                td: i.icon-ok
+            tr
+                td D#{i++}
+                td Сделать горизонтальное меню (список ul, li), выровненное по центру страницы вертикально и горизотально
+                td Comming soon...
+                td: i.icon-ok
+            tr
+                td D#{i++}
+                td
+                td
+                td: i.icon-minus
+            tr
+                td D#{i++}
+                td
+                td
+                td: i.icon-minus
+            tr
+                td D#{i++}
+                td
+                td
+                td: i.icon-minus

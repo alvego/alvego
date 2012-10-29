@@ -8,20 +8,20 @@ html
         link(href="http://_host_/style.css", rel="stylesheet")
         link(href="http://_host_/libs/bootstrap/css/bootstrap-responsive.min.css", rel="stylesheet")
         link(rel="shortcut icon", href="http://_host_/favicon.ico")
-        title= page.title
+        title #{page.title} - Web-programming
     body
         .container
             header.clearfix.muted
                 h3.pull-left=page.title 
-                h3.pull-right Alvego's Personal Playground
+                h3.pull-right Web-programming
             +nav(nav)
             article.clearfix
                 block content
-                em.pull-right=page.date
-            hr.clearfix
-            footer.clearfix
-                +pages
-                p &copy; Alvego #{new Date().getFullYear()}
+
+            hr
+            footer.clearfix.muted
+                em.pull-right Posted on #{page.date}
+                p &copy; #{new Date().getFullYear()} Alvego's personal playground.
 
         script(src="http://_host_/libs/jquery.min.js")
         script(src="http://_host_/libs/html5.js")

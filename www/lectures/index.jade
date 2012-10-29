@@ -1,0 +1,75 @@
+//- title: Лекции
+extends _root_/layout
+
+block content
+    - var i = 1
+    table.table.table-striped
+        thead
+            tr
+                th #
+                th Date
+                th Type
+                th Description
+                th Status
+        tbody
+            tr
+                td L#{i++}
+                td 22.10.2012
+                td Frontend
+                td box-model, position, overlapping
+                td: i.icon-ok
+            tr
+                td L#{i++}
+                td 29.10.2012
+                td Frontend
+                td display, layout, aligment
+                td: i.icon-ok
+            tr
+                td L#{i++}
+                td 05.11.2012
+                td Frontend
+                td cross browsers compatibility, graceful degradation, jquery, css tips and trics
+                td: i.icon-minus
+            tr
+                td L#{i++}
+                td 12.11.2012
+                td Backend
+                td Introduction to Node.js, simple web server
+                td: i.icon-minus
+            tr
+                td L#{i++}
+                td 19.11.2012
+                td Backend
+                td Simple app (nodejs & sqllite)
+                td: i.icon-minus
+            tr
+                td L#{i++}
+                td 26.11.2012
+                td Семинар
+                td Deployment, cms intro (wp as sample) + assign individual tasks
+                td: i.icon-minus
+            tr
+                td L#{i++}
+                td 03.12.2012
+                td Консультация
+                td Individual work
+                td: i.icon-minus
+            tr
+                td L#{i++}
+                td 10.12.2012
+                td Консультация
+                td Individual work
+                td: i.icon-minus
+            tr
+                td L#{i++}
+                td 17.12.2012
+                td Консультация
+                td Individual work
+                td: i.icon-minus
+            tr
+                td L#{i++}
+                td 17.12.2012
+                td Зачет
+                td Individual task presentation
+                td: i.icon-minus
+    
