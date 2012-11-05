@@ -1,0 +1,130 @@
+//- title: Индивидуальные задания
+extends _root_/layout
+
+block content
+    - var i = 1;
+    - var c = "Name,L1,D1,L2,D2".split(',');
+    - var d = [],a = function(c){d.push(c)};
+    - a('Борзунов Андрей Анатольевич КСС-311,L2');
+    - a('Виноградов Борис,L1,D1,L2,D2');
+    - a('Виноградова Татьяна КСС-312,L1,D1,L2');
+    - a('Вовк Олег,L2');
+    - a('Гельфанов Аллан КСС-311,L1,D1,L2');
+    - a('Дергачев Александр КСС-312,L1,D1,L2,D2');
+    - a('Зинкина Ирина КСС-311,L1,D1,L2,D2');
+    - a('Ливанов Артём Дмитриевич КСС-312,L1,D1,L2,D2');
+    - a('Лойко Анастасия КСС-311,L1,D1,L2');
+    - a('Маханькова Татьяна Вячеславовна КСС-311,L1,D1,L2');
+    - a('Мищенко Евгений КСС-312,L1,D1,L2');
+    - a('Николаев Руслан Андреевич КСС-312,L1,D1,L2,D2');
+    - a('Понамаренко Светлана Андреевна КСС-311,L1,D1,L2');
+    - a('Синицын Дмитрий,L1,D1,L2,D2');
+    - a('Тютюнник Анна КСС-312,L1,D1,L2');
+    - a('Шихбадинов Эльдар КСС-312,L1,D1,L2');
+    table.table.table-striped
+        thead
+            tr
+                th #
+                each h in c
+                    th= h
+        tbody
+            each p in d
+                tr
+                    td #{i++}
+                    each h in c
+                        td
+                            if 'Name' === h
+                                =p.split(',')[0]
+                            else
+                                if p.indexOf(h) === -1
+                                    i.icon-minus
+                                else
+                                    i.icon-ok
+
+
+    - var i = 1;
+    table.table.table-striped
+        thead
+            tr
+                th #
+                th Name
+                th Task 1
+                th: i.icon-check
+                th Task 2
+                th: i.icon-check
+                th Task 3
+                th: i.icon-check
+        tbody
+            tr
+                td #{i++}
+                td Вовк Олег
+                td Task1
+                td: i.icon-minus
+                td Task2
+                td: i.icon-minus
+                td Task3
+                td: i.icon-minus
+            tr
+                td #{i++}
+                td Дергачев Александр КСС-312
+                td Task1
+                td: i.icon-minus
+                td Task2
+                td: i.icon-minus
+                td
+                    p C использованием Zend Framework 2.0 написать агрегатор новостей (из различных RSS лент)
+                td: i.icon-minus
+            tr
+                td #{i++}
+                td Ливанов Артём Дмитриевич КСС-312
+                td Task1
+                td: i.icon-minus
+                td Task2
+                td: i.icon-minus
+                td
+                    p Написать Ajax чат с использованием Zend Framework 2.0 и REST.
+                td: i.icon-minus
+            tr
+                td #{i++}
+                td Лойко Анастасия КСС-311
+                td Task1
+                td: i.icon-minus
+                td Task2
+                td: i.icon-minus
+                td
+                    p Третье индивидуальное задание будет такое: написать небольшой чат на С#.
+                    p Разместить его на сервере и прислать нам URL на тестирование. Отдельно приаттачить файлы с кодом
+                td: i.icon-minus
+            tr
+                td #{i++}
+                td Мищенко Евгений КСС-312
+                td Task1
+                td: i.icon-minus
+                td Task2
+                td: i.icon-minus
+                td Task3
+                td: i.icon-minus
+            tr
+                td #{i++}
+                td Николаев Руслан Андреевич КСС-312
+                td Task1
+                td: i.icon-minus
+                td Task2
+                td: i.icon-minus
+                td Task3
+                td: i.icon-minus
+            tr
+                td #{i++}
+                td Понамаренко Светлана Андреевна КСС-311
+                td Task1
+                td: i.icon-minus
+                td Task2
+                td: i.icon-minus
+                td
+                    p Cделать страничку с онлайн уроком по MVC 3.0.
+                    p Содержимое урока написать самостоятельно, почитав предварительно про MVC 3.0.
+                    p К уроку нужно добавить галерею со скриншотами и lightbox (можно использовать готовые решения).
+                td: i.icon-minus
+
+    p Cтуденты, работающие по индивидуальным заданиям, могут посещать пары в свободном режиме и не выполнять общие лабы.
+    p Вместо этого они выполняют три задачи, выданные им, и по результатам этих задач получают зачет.

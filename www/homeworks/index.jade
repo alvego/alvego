@@ -14,12 +14,62 @@ block content
             tr
                 td D#{i++}
                 td Сделать 2 дива, с заливкой разных цветов, которые бы занимали все доступное место на странице, деля ее на 2 вертикальные колонки.
-                td: a(href="http://jsfiddle.net/a3j99/1/") http://jsfiddle.net/a3j99/1/
+                td: a(href="http://jsfiddle.net/a3j99/1/") посмотреть на jsFiddle
                 td: i.icon-ok
             tr
                 td D#{i++}
-                td Сделать горизонтальное меню (список ul, li), выровненное по центру страницы вертикально и горизотально
-                td Comming soon...
+                td Сделать горизонтальное меню (список ul, li), выровненное по центру страницы вертикально и горизонтально
+                td: a(href="http://jsfiddle.net/sCQa5/28/") посмотреть на jsFiddle
+                td: i.icon-ok
+            tr
+                td D#{i++}
+                td
+                    ol
+                        li Зарегистрироваться на
+                            |
+                            a(href="https://github.com/signup/free", title="Регистрация аккаунта на github") github.com
+                        li Создать свой репрозиторий на github
+                        li Пройти
+                            |
+                            a(href="http://try.github.com/levels/1/challenges/1") онлайн урок по git
+                        li Установить себе
+                            |
+                            a(href="http://git-scm.com/") git
+                        li Разобраться как работают команды git (clone, add, commit, push, pull). Рекомендую почитать книгу
+                            |
+                            a(href="progit.ru.pdf") про git
+
+                        li Взять себе локально свой репрозиторий с github (git clone ...)
+                        li
+                            p Сверстать страницу-заготовку для вашего сайта, с использованием CSS framework'a
+                                |
+                                a(href="http://twitter.github.com/bootstrap/index.html") Bootstrap
+                            p Должно быть в наличии:
+                                ul
+                                    li
+                                        code nav
+                                        | - меню (горизонтальное или вертикальное), должно быть несколько пунктов, например:
+                                        code Item1 | Item2 | Item3 | Item4
+                                    li
+                                        code header
+                                        | - заголовок сайта (красиво, желательно с картинкой)
+                                    li
+                                        code layout
+                                        | - колонки (основная и боковая для вертикального меню)
+                                    li
+                                        code article
+                                        | - некий текст в основной колонке (для теста стилей)
+                                    li
+                                        code footer
+                                        | - подвал (с вашим копирайтом)
+                            p Все должно быть красиво оформлено:
+                                ul
+                                    li Bootstrap - колонки, меню и типографка
+                                    li Заголовок, фон и общий дизайн страницы - ваши стили.
+                            p Используйте HTML5 и jQuery
+                        li Выложить результат вашей работы в ваш репрозиторий на github
+                        li Прислать мне на почту ссылку на ваш репрозиторий
+                td
                 td: i.icon-ok
             tr
                 td D#{i++}
@@ -31,8 +81,4 @@ block content
                 td
                 td
                 td: i.icon-minus
-            tr
-                td D#{i++}
-                td
-                td
-                td: i.icon-minus
+//-    a(href="individual/").pull-right Индивидуальные задания
