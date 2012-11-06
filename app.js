@@ -10,7 +10,7 @@ var serverRoot = path.join(__dirname, 'www');
 var hostPort = process.env.VMC_APP_PORT || 81;
 var hostName =  process.env.VMC_APP_PORT ? 'alvego.pp.ua' : 'localhost:81';
 var existsSync = fs.existsSync || path.existsSync;
-//var requestLog = [];
+
 /******************************/
 var dynamics = [
     {
@@ -111,6 +111,7 @@ function modifyUrlPath(sourceUrl, pathModifer){
     return url.format(parsedUrl);
 }
 /****************************/
+//var requestLog = [];
 /*function requestLogAction(req, res, next){
 
     if (requestLog.length > 999) {

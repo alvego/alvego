@@ -41,4 +41,46 @@ block content
                                 else
                                     i.icon-ok
 
-
+    h4 Статус по индивидуальным заданиям
+    - var i = 1;
+    - var c = "Name,Task1,Task2,Task3".split(',');
+    - var d = [],a = function(c){d.push(c)};
+    - a('Вовк Олег,                                 T1.1,T2,T3.5');
+    - a('Дергачев Александр КСС-312,                T1+,T2,T3.3');
+    - a('Ливанов Артём Дмитриевич КСС-312,          T1,T2,T3.2');
+    - a('Лойко Анастасия КСС-311,                   T1,T2,T3.1');
+    - a('Мищенко Евгений КСС-312,                   T1,T2,T3');
+    - a('Николаев Руслан Андреевич КСС-312,         T1,T2,T3.6');
+    - a('Понамаренко Светлана Андреевна КСС-311,    T1,T2,T3.4');
+    table.table.table-striped
+        thead
+            tr
+                th #
+                each h in c
+                    th=h
+                        if h.indexOf('Task') !== -1
+                            |
+                            i.icon-check
+        tbody
+            each p in d
+                tr
+                    td #{i++}
+                    -var s = p.split(',');
+                    each val, key in c
+                        td
+                            if 0 === key
+                                =s[0]
+                            else
+                                if s.length <= key
+                                    i.icon-minus(style="opacity:0.5;")
+                                else
+                                    - var t = '' + s[key];
+                                    - var ok = (t.indexOf('+') !== -1);
+                                    - t = t.replace(/\+/g,'');
+                                    | #{t}
+                                    if ok
+                                        i.icon-ok
+                                    else
+                                        i.icon-minus(style="opacity:0.5;")
+    p Студенты, работающие по индивидуальным заданиям, могут посещать пары в свободном режиме и не выполнять общие лабораторные работы.
+    p Вместо этого они выполняют три задачи, выданные им, и по результатам этих задач получают зачет
