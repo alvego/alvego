@@ -8,12 +8,12 @@ html
         link(href="http://_host_/style.css", rel="stylesheet")
         link(href="http://_host_/libs/bootstrap/css/bootstrap-responsive.min.css", rel="stylesheet")
         link(rel="shortcut icon", href="http://_host_/favicon.ico")
-        title #{page.title} - Web-programming
+        title #{page.title} - Web-development
     body
         .container
             header.clearfix.muted
                 h3.pull-left=page.title 
-                h3.pull-right Web-programming
+                h3.pull-right Web-development
             +nav(nav)
             article.clearfix
                 block content
@@ -27,3 +27,13 @@ html
         script(src="http://_host_/libs/html5.js")
         script(src="http://_host_/libs/bootstrap/js/bootstrap.min.js")
         script(src="http://_host_/script.js")
+        script
+                var _gaq = _gaq || [];
+                _gaq.push(['_setAccount', 'UA-5800604-1']);
+                _gaq.push(['_trackPageview']);
+
+                (function() {
+                    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+                    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+                    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+                })();
